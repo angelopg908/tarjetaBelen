@@ -1,0 +1,228 @@
+
+<style>
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+  }
+  @keyframes envelopeFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+  @keyframes starPop {
+    0% { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.2); }
+  }
+
+  .scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 900px;
+    padding: 1rem;
+    position: relative;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .envelope-wrapper {
+    position: relative;
+    width: 220px;
+    height: 160px;
+    margin-top: 400px;
+    cursor: pointer;
+    animation: envelopeFloat 3s ease-in-out infinite;
+  }
+
+  .envelope-wrapper.opened {
+    animation: none;
+  }
+
+  .envelope-body {
+    width: 220px;
+    height: 160px;
+    background: #e8d5b7;
+    border-radius: 4px;
+    position: absolute;
+    bottom: 0;
+    border: 1.5px solid #c9a96e;
+    overflow: hidden;
+  }
+
+  .envelope-body::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 110px solid #d4b88a;
+    border-right: 110px solid #d4b88a;
+    border-top: 80px solid transparent;
+  }
+
+  .envelope-body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 0; height: 0;
+    border-left: 110px solid transparent;
+    border-right: 110px solid transparent;
+    border-top: 85px solid #c9a96e;
+    z-index: 2;
+  }
+
+  .envelope-flap {
+    position: absolute;
+    top: 0; left: 0;
+    width: 220px;
+    height: 90px;
+    z-index: 10;
+  }
+
+  .envelope-flap-inner {
+    width: 220px;
+    height: 90px;
+    clip-path: polygon(0 0, 220px 0, 110px 80px);
+    background: #d4b88a;
+    border-left: 1.5px solid #c9a96e;
+    border-right: 1.5px solid #c9a96e;
+    transform-origin: top center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    backface-visibility: hidden;
+  }
+
+  .opened .envelope-flap-inner {
+    transform: rotateX(-180deg);
+  }
+
+  .heart {
+    position: absolute;
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    z-index: 15;
+    animation: heartbeat 1.5s ease-in-out infinite;
+  }
+
+  .letter {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0px);
+    width: 190px;
+    background: #fffef8;
+    border-radius: 2px;
+    border: 1px solid #e0d5c0;
+    z-index: 5;
+    opacity: 0;
+    transition: transform 1.3s ease-out 0.4s, opacity 0.6s ease-out 0.4s;
+    padding: 16px 14px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+
+  .opened .letter {
+    transform: translateX(-50%) translateY(120px);
+    opacity: 1;
+  }
+
+  .letter-text {
+    font-family: 'Georgia', serif;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #4a3728;
+    white-space: pre-line;
+  }
+
+  .letter-text .greeting {
+    font-size: 12px;
+    font-weight: bold;
+    color: #7a4f3a;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .letter-text .sign {
+    font-size: 11px;
+    font-style: italic;
+    color: #7a4f3a;
+    margin-top: 10px;
+    display: block;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: #e8dcc8;
+    margin: 8px 0;
+  }
+
+  .stars {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  .opened .star {
+    animation: starPop 0.8s ease-out var(--delay) forwards;
+  }
+</style>
+
+<div class="scene">
+  <p class="hint" id="hint">Toca el sobre para abrirlo ✉️</p>
+  <div class="stars" id="stars"></div>
+
+  <div class="envelope-wrapper" id="envelope" onclick="openEnvelope()">
+    <div class="letter">
+      <div class="divider"></div>
+      <div class="letter-text">
+        <span class="greeting">Querida Belems,</span>Quiero invitarla el próximo día 7 de Mayo a una noche de comida, cine y hablar mucho sobre los dos.
+
+Espero que desees acompañarme.<span class="sign">Atte, Angelo 🌹</span>
+      </div>
+      <div class="divider"></div>
+    </div>
+
+    <div class="envelope-body"></div>
+
+    <div class="envelope-flap">
+      <div class="envelope-flap-inner"></div>
+    </div>
+
+    <div class="heart">❤️</div>
+  </div>
+</div>
+
+<script>
+  function openEnvelope() {
+    const env = document.getElementById('envelope');
+    if (env.classList.contains('opened')) return;
+    env.classList.add('opened');
+    document.getElementById('hint').style.display = 'none';
+
+    const stars = document.getElementById('stars');
+    for (let i = 0; i < 14; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = (40 + (Math.random() - 0.5) * 30) + '%';
+      s.style.top = (60 + (Math.random() - 0.5) * 20) + '%';
+      s.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
+      s.style.setProperty('--ty', (Math.random() - 0.5) * 100 + 'px');
+      s.style.setProperty('--delay', (i * 0.05) + 's');
+      s.style.background = ['#f8b4c8','#ffd700','#ffb3d1','#ff8fab'][i % 4];
+      stars.appendChild(s);
+    }
+  }
+</script>
